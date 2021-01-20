@@ -1,19 +1,25 @@
 import { config } from 'dotenv';
 import { createServer } from 'http';
-
 import { BadRequestError, InternalError } from './errors';
-import { uploadFileToS3 } from './s3';
-import { getFilenameFromEndpoint, isValidEndpoint, isValidFileLength, isValidHeaders } from './utils';
 import { log } from './log';
+import {
+    getFilenameFromEndpoint,
+    getTargetSizes,
+    isValidEndpoint,
+    isValidFileLength,
+    isValidHeaders,
+    uploadImageToS3WithDifferentSizes,
+} from './utils';
 
 config();
 
-const { PORT = 3000, MAX_ALLOWED_FILE_SIZE = 1024 * 60 } = process.env;
+const { PORT = 3000, MAX_ALLOWED_FILE_SIZE = 1000000 } = process.env;
 
 createServer(async (req, res) => {
     try {
         if (isValidEndpoint(req.url)) {
-            if (!isValidHeaders(req.headers) || isValidFileLength(req.headers)) {
+            if (!isValidHeaders(req.headers) || !isValidFileLength(req.headers)) {
+                log.debug('Invalud headers', req.headers);
                 return res.end(
                     JSON.stringify(
                         new BadRequestError(`Check your headers or filesize, max allowed: ${MAX_ALLOWED_FILE_SIZE}`),
@@ -22,13 +28,16 @@ createServer(async (req, res) => {
             }
 
             const filename = getFilenameFromEndpoint(req.url);
-            await uploadFileToS3(filename, req);
+            const sizes = getTargetSizes();
+            await uploadImageToS3WithDifferentSizes(sizes, filename, req);
             res.end(JSON.stringify({ status: 200, message: `${filename} uploaded` }));
         } else {
+            log.debug('Invalid url requested', req.url);
             res.end(JSON.stringify(new BadRequestError('Check your url, should be /filename format')));
         }
     } catch (error) {
-        res.end(new InternalError());
+        log.error(error);
+        res.end(JSON.stringify(new InternalError()));
     }
 }).listen(PORT, () => log.info(`Listening at ${PORT}`));
 
