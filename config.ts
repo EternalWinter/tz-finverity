@@ -1,1 +1,1 @@
-export const validHeaders = ['image/png'];
+export const validContentTypes = ['image/png'];

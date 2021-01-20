@@ -3,7 +3,7 @@ import { config } from 'dotenv';
 import { IncomingHttpHeaders, IncomingMessage } from 'http';
 import * as sharp from 'sharp';
 import { uploadFileToS3 } from './s3';
-import { validHeaders } from './config';
+import { validContentTypes } from './config';
 
 config();
 
@@ -24,7 +24,7 @@ export function isValidEndpoint(endpoint: string): boolean {
 }
 
 export function isValidHeaders(headers: IncomingHttpHeaders): boolean {
-    return headers && 'content-type' in headers && validHeaders.includes(headers['content-type']);
+    return headers && 'content-type' in headers && validContentTypes.includes(headers['content-type']);
 }
 
 export function getFilenameFromEndpoint(url: string): string {
