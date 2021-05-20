@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 import { createServer } from 'http';
-import { BadRequestError, InternalError } from './errors';
-import { log } from './log';
+import { BadRequestError, InternalError } from './src/errors';
+import { log } from './src/log';
 import {
     getFilenameFromEndpoint,
     getTargetSizes,
@@ -9,7 +9,7 @@ import {
     isValidFileLength,
     isValidHeaders,
     uploadImageToS3WithDifferentSizes,
-} from './utils';
+} from './src/utils';
 
 config();
 

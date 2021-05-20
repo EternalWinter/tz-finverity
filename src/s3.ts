@@ -2,6 +2,7 @@ import { S3 } from 'aws-sdk';
 import { config } from 'dotenv';
 import { PassThrough } from 'stream';
 import { InternalError } from './errors';
+
 config();
 
 const { SECRET_ACCESS_KEY_S3, ACCESS_KEY_ID_S3, BUCKET_NAME_S3 } = process.env;
